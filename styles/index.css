@@ -1,0 +1,163 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --color-text-main: #0f172a;
+  --color-text-muted: #475569;
+  --color-bg-base: #ffffff;
+  --color-bg-subtle: #f8fafc;
+  --color-bg-card: #ffffff;
+  --color-border: #cbd5e1;
+
+  /* Strict Event Loop Domain Color Palette */
+  --c-stack-text: #1d4ed8;
+  --c-stack-bg: #dbeafe;
+  --c-stack-border: #3b82f6;
+
+  --c-webapi-text: #c2410c;
+  --c-webapi-bg: #ffedd5;
+  --c-webapi-border: #f97316;
+
+  --c-micro-text: #15803d;
+  --c-micro-bg: #dcfce7;
+  --c-micro-border: #22c55e;
+
+  --c-macro-text: #6d28d9;
+  --c-macro-bg: #ede9fe;
+  --c-macro-border: #8b5cf6;
+
+  --c-loop-text: #b91c1c;
+  --c-loop-bg: #fee2e2;
+  --c-loop-border: #ef4444;
+
+  --c-console-text: #1e293b;
+  --c-console-bg: #f1f5f9;
+  --c-console-border: #64748b;
+
+  --c-heap-text: #a16207;
+  --c-heap-bg: #feF9c3;
+  --c-heap-border: #eab308;
+}
+
+/* Force light theme across all slidev containers */
+.slidev-layout {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  padding: 0.85rem 1.25rem !important;
+  height: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+}
+
+/* Prevent unwanted browser dark-mode inversions */
+html, body {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  color-scheme: light !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Clean, proportionate typography */
+h1 {
+  font-size: 1.5rem !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  color: #0f172a !important;
+  margin-bottom: 0.25rem !important;
+  letter-spacing: -0.02em !important;
+}
+
+h2 {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+  color: #0f172a !important;
+  margin-bottom: 0.25rem !important;
+}
+
+h3 {
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+  color: #1e293b !important;
+}
+
+/* High-contrast code styling */
+code, pre, .font-mono {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* Badge and Tag Utility */
+.badge-stack {
+  background-color: var(--c-stack-bg);
+  color: var(--c-stack-text);
+  border: 2px solid var(--c-stack-border);
+}
+.badge-webapi {
+  background-color: var(--c-webapi-bg);
+  color: var(--c-webapi-text);
+  border: 2px solid var(--c-webapi-border);
+}
+.badge-micro {
+  background-color: var(--c-micro-bg);
+  color: var(--c-micro-text);
+  border: 2px solid var(--c-micro-border);
+}
+.badge-macro {
+  background-color: var(--c-macro-bg);
+  color: var(--c-macro-text);
+  border: 2px solid var(--c-macro-border);
+}
+.badge-loop {
+  background-color: var(--c-loop-bg);
+  color: var(--c-loop-text);
+  border: 2px solid var(--c-loop-border);
+}
+.badge-console {
+  background-color: var(--c-console-bg);
+  color: var(--c-console-text);
+  border: 2px solid var(--c-console-border);
+}
+.badge-heap {
+  background-color: var(--c-heap-bg);
+  color: var(--c-heap-text);
+  border: 2px solid var(--c-heap-border);
+}
+
+/* Thick stroke boxes */
+.box-thick {
+  border-width: 2px;
+  border-style: solid;
+  border-radius: 0.6rem;
+}
+
+/* Pulse animation for active step */
+@keyframes ring-pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+  50% { transform: scale(1.04); box-shadow: 0 0 0 6px rgba(220, 38, 38, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+
+.animate-ring-pulse {
+  animation: ring-pulse 1.2s infinite ease-in-out;
+}
+
+/* Transitions */
+.token-move-enter-active,
+.token-move-leave-active {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.token-move-enter-from {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.95);
+}
+.token-move-leave-to {
+  opacity: 0;
+  transform: translateY(8px) scale(0.95);
+}
