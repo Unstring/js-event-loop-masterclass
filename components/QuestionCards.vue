@@ -6,6 +6,7 @@ export interface QuestionItem {
   q: string
   a: string
   revealStep: number
+  pinpoint?: string
 }
 
 const props = defineProps<{
@@ -17,6 +18,7 @@ const TYPE_CONFIG = {
   WHAT: {
     bg: '#eff6ff',
     border: '#93c5fd',
+    activeBorder: '#2563eb',
     badgeBg: '#2563eb',
     badgeFg: '#ffffff',
     title: 'WHAT happens?',
@@ -25,6 +27,7 @@ const TYPE_CONFIG = {
   HOW: {
     bg: '#faf5ff',
     border: '#d8b4fe',
+    activeBorder: '#7c3aed',
     badgeBg: '#7c3aed',
     badgeFg: '#ffffff',
     title: 'HOW does it work?',
@@ -33,6 +36,7 @@ const TYPE_CONFIG = {
   WHERE: {
     bg: '#fffbeb',
     border: '#fde68a',
+    activeBorder: '#d97706',
     badgeBg: '#d97706',
     badgeFg: '#ffffff',
     title: 'WHERE does it live?',
@@ -41,6 +45,7 @@ const TYPE_CONFIG = {
   WHEN: {
     bg: '#ecfdf5',
     border: '#a7f3d0',
+    activeBorder: '#059669',
     badgeBg: '#059669',
     badgeFg: '#ffffff',
     title: 'WHEN does it run?',
@@ -50,7 +55,7 @@ const TYPE_CONFIG = {
 </script>
 
 <template>
-  <div class="qc-grid">
+  <div class="qc-root">
     <div
       v-for="(item, idx) in items"
       :key="idx"
@@ -62,8 +67,10 @@ const TYPE_CONFIG = {
         }
       ]"
       :style="{
-        background: step >= item.revealStep ? TYPE_CONFIG[item.type].bg : '#f8fafc',
-        borderColor: step >= item.revealStep ? TYPE_CONFIG[item.type].border : '#e2e8f0'
+        background: step >= item.revealStep ? TYPE_CONFIG[item.type].bg : '#ffffff',
+        borderColor: step === item.revealStep
+          ? TYPE_CONFIG[item.type].activeBorder
+          : (step >= item.revealStep ? TYPE_CONFIG[item.type].border : '#e2e8f0')
       }"
     >
       <div class="qc-top">
@@ -84,11 +91,16 @@ const TYPE_CONFIG = {
 
       <div class="qc-answer-box">
         <Transition name="fade-slide" mode="out-in">
-          <div v-if="step >= item.revealStep" class="qc-a">
-            <span class="qc-a-prefix">Insight:</span> {{ item.a }}
+          <div v-if="step >= item.revealStep" class="qc-a-content">
+            <div class="qc-a">
+              <span class="qc-a-bold">Explanation:</span> {{ item.a }}
+            </div>
+            <div v-if="item.pinpoint" class="qc-pinpoint">
+              <span class="pinpoint-tag">Rule:</span> {{ item.pinpoint }}
+            </div>
           </div>
           <div v-else class="qc-a-hidden">
-            <span class="qc-lock">🔒</span> Next click reveals answer...
+            <span class="qc-lock">🔒</span> Advance click to reveal architectural answer
           </div>
         </Transition>
       </div>
@@ -97,24 +109,25 @@ const TYPE_CONFIG = {
 </template>
 
 <style scoped>
-.qc-grid {
+.qc-root {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
   height: 100%;
   justify-content: space-between;
 }
 .qc-card {
-  padding: 8px 12px;
+  padding: 7px 11px;
   border-radius: 8px;
   border: 1.5px solid #e2e8f0;
-  transition: all 0.25s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
 }
 .qc-card--active {
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.16);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.2);
   transform: translateY(-1px);
 }
 .qc-top {
@@ -123,7 +136,7 @@ const TYPE_CONFIG = {
   gap: 6px;
 }
 .qc-badge {
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 800;
   letter-spacing: 0.08em;
   padding: 1.5px 6px;
@@ -133,57 +146,78 @@ const TYPE_CONFIG = {
 .qc-type-label {
   font-size: 11px;
   font-weight: 700;
-  color: #334155;
+  color: #1e293b;
 }
 .qc-icon {
   margin-left: auto;
-  font-size: 12px;
+  font-size: 11.5px;
 }
 .qc-q {
-  font-size: 11.5px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   color: #0f172a;
   line-height: 1.35;
 }
 .qc-answer-box {
-  min-height: 28px;
+  min-height: 26px;
   display: flex;
   align-items: center;
 }
-.qc-a {
-  font-size: 11px;
-  color: #1e293b;
-  line-height: 1.4;
-  background: rgba(255, 255, 255, 0.7);
-  padding: 4px 8px;
-  border-radius: 5px;
+.qc-a-content {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
-.qc-a-prefix {
-  font-weight: 700;
+.qc-a {
+  font-size: 10.5px;
+  color: #1e293b;
+  line-height: 1.35;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 3px 7px;
+  border-radius: 4px;
+}
+.qc-a-bold {
+  font-weight: 800;
   color: #0f172a;
 }
+.qc-pinpoint {
+  font-size: 9.5px;
+  color: #1d4ed8;
+  font-family: 'JetBrains Mono', monospace;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.pinpoint-tag {
+  font-weight: 800;
+  background: #dbeafe;
+  padding: 1px 4px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
 .qc-a-hidden {
-  font-size: 10.5px;
+  font-size: 10px;
   color: #94a3b8;
   font-style: italic;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
 .qc-lock {
   font-size: 10px;
 }
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: all 0.2s ease;
+  transition: all 0.18s ease;
 }
 .fade-slide-enter-from {
   opacity: 0;
-  transform: translateY(4px);
+  transform: translateY(3px);
 }
 .fade-slide-leave-to {
   opacity: 0;
-  transform: translateY(-4px);
+  transform: translateY(-3px);
 }
 </style>
