@@ -198,10 +198,10 @@ const traceStates = [
   }
 ]
 
-const current = computed(() => {
-  const idx = Math.min($clicks, traceStates.length - 1)
-  return traceStates[idx]
-})
+function getState(step: number = 0) {
+  const idx = Math.max(0, Math.min(step ?? 0, traceStates.length - 1))
+  return traceStates[idx] || traceStates[0]
+}
 </script>
 
 <SlLayout
@@ -216,20 +216,20 @@ const current = computed(() => {
       <CodePanel
         title="settimeout-trace.js"
         :lines="codeLines"
-        :active-line="current.line"
+        :active-line="getState($clicks).line"
         tag="Web API Lifecycle"
       />
     </div>
     <div class="col-engine-wide">
       <EngineVisualizer
         :state="{
-          stack: current.stack,
-          webApis: current.webApis,
+          stack: getState($clicks).stack,
+          webApis: getState($clicks).webApis,
           microtasks: [],
-          macrotasks: current.macrotasks,
-          logs: current.logs,
-          loopStatus: current.loopStatus,
-          activeComponent: current.activeComp
+          macrotasks: getState($clicks).macrotasks,
+          logs: getState($clicks).logs,
+          loopStatus: getState($clicks).loopStatus,
+          activeComponent: getState($clicks).activeComp
         }"
       />
     </div>

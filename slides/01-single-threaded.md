@@ -137,10 +137,10 @@ const stepsState = [
   { frames: [], blocked: false, op: 'console.log("3: End") -> Execution Complete', line: 3 }
 ]
 
-const current = computed(() => {
-  const idx = Math.min($clicks, stepsState.length - 1)
-  return stepsState[idx]
-})
+function getState(step: number = 0) {
+  const idx = Math.max(0, Math.min(step ?? 0, stepsState.length - 1))
+  return stepsState[idx] || stepsState[0]
+}
 </script>
 
 <SlLayout
@@ -156,19 +156,19 @@ const current = computed(() => {
       <CodePanel
         title="blocking-trace.js"
         :lines="codeLines"
-        :active-line="current.line"
+        :active-line="getState($clicks).line"
         tag="Trace"
       />
       <div class="callstack-box">
-        <CallStack :frames="current.frames" />
+        <CallStack :frames="getState($clicks).frames" />
       </div>
     </div>
 
     <!-- Right Column: Single Thread vs Browser Host -->
     <div class="col-thread">
       <ThreadBox
-        :blocked="current.blocked"
-        :active-operation="current.op"
+        :blocked="getState($clicks).blocked"
+        :active-operation="getState($clicks).op"
       />
     </div>
   </div>

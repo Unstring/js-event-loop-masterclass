@@ -142,10 +142,10 @@ const traceStates = [
   { stack: [], loopStatus: 'STACK EMPTY! Event Loop checking queues...', logs: ['Result: 16'], line: 6 }
 ]
 
-const current = computed(() => {
-  const idx = Math.min($clicks, traceStates.length - 1)
-  return traceStates[idx]
-})
+function getState(step: number = 0) {
+  const idx = Math.max(0, Math.min(step ?? 0, traceStates.length - 1))
+  return traceStates[idx] || traceStates[0]
+}
 </script>
 
 <SlLayout
@@ -160,20 +160,20 @@ const current = computed(() => {
       <CodePanel
         title="stack-trace.js"
         :lines="codeLines"
-        :active-line="current.line"
+        :active-line="getState($clicks).line"
         tag="LIFO Execution"
       />
     </div>
     <div class="col-engine-wide">
       <EngineVisualizer
         :state="{
-          stack: current.stack,
+          stack: getState($clicks).stack,
           webApis: [],
           microtasks: [],
           macrotasks: [],
-          logs: current.logs,
-          loopStatus: current.loopStatus,
-          activeComponent: current.stack.length ? 'stack' : 'loop'
+          logs: getState($clicks).logs,
+          loopStatus: getState($clicks).loopStatus,
+          activeComponent: getState($clicks).stack.length ? 'stack' : 'loop'
         }"
       />
     </div>

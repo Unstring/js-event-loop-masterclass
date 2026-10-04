@@ -201,10 +201,10 @@ const traceStates = [
   }
 ]
 
-const current = computed(() => {
-  const idx = Math.min($clicks, traceStates.length - 1)
-  return traceStates[idx]
-})
+function getState(step: number = 0) {
+  const idx = Math.max(0, Math.min(step ?? 0, traceStates.length - 1))
+  return traceStates[idx] || traceStates[0]
+}
 </script>
 
 <SlLayout
@@ -219,20 +219,20 @@ const current = computed(() => {
       <CodePanel
         title="queue-priority-trace.js"
         :lines="codeLines"
-        :active-line="current.line"
+        :active-line="getState($clicks).line"
         tag="Queue Simulator"
       />
     </div>
     <div class="col-engine-wide">
       <EngineVisualizer
         :state="{
-          stack: current.stack,
+          stack: getState($clicks).stack,
           webApis: [],
-          microtasks: current.micro,
-          macrotasks: current.macro,
-          logs: current.logs,
-          loopStatus: current.loopStatus,
-          activeComponent: current.activeComp
+          microtasks: getState($clicks).micro,
+          macrotasks: getState($clicks).macro,
+          logs: getState($clicks).logs,
+          loopStatus: getState($clicks).loopStatus,
+          activeComponent: getState($clicks).activeComp
         }"
       />
     </div>
