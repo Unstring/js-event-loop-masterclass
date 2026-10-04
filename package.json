@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "slidev --open",
+    "dev": "slidev --port 3040 --open",
     "build": "slidev build",
     "export": "slidev export"
   },
