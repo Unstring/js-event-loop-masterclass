@@ -1,58 +1,196 @@
+<!-- ========================================== -->
+<!-- TOPIC 2 • SLIDE 1 OF 2: CODE & QUESTIONS    -->
+<!-- ========================================== -->
+<script setup lang="ts">
+import SlLayout from '../components/SlLayout.vue'
+import CodePanel from '../components/CodePanel.vue'
+import QuestionCards from '../components/QuestionCards.vue'
+
+const codeLines = [
+  "function multiply(a, b) {",
+  "  return a * b;",
+  "}",
+  "",
+  "function square(n) {",
+  "  return multiply(n, n);",
+  "}",
+  "",
+  "function printSquare(x) {",
+  "  const result = square(x);",
+  "  console.log('Result:', result);",
+  "}",
+  "",
+  "printSquare(4);"
+]
+
+const captions = [
+  "Topic 2: The Call Stack & Event Loop — How function calls are structured in memory.",
+  "Line 14: printSquare(4) is invoked — a stack frame is created and pushed to the Call Stack.",
+  "Line 10: printSquare calls square(4) — another frame stacks directly on top.",
+  "Line 6: square calls multiply(4, 4) — the stack reaches a depth of 3 active frames.",
+  "Line 2: multiply calculates 16 and returns — frames unwind one by one (LIFO)."
+]
+
+const questions = [
+  {
+    type: 'WHAT' as const,
+    q: "What is a Call Stack frame?",
+    a: "A contiguous block of memory storing the function's arguments, local variables, and return address.",
+    revealStep: 1
+  },
+  {
+    type: 'HOW' as const,
+    q: "How does LIFO (Last-In, First-Out) work?",
+    a: "The most recently called function is pushed on top and must return before caller functions can resume.",
+    revealStep: 2
+  },
+  {
+    type: 'WHERE' as const,
+    q: "Where does the Event Loop sit in this picture?",
+    a: "The Event Loop continuously observes the Call Stack: while frames exist, it never interrupts.",
+    revealStep: 3
+  },
+  {
+    type: 'WHEN' as const,
+    q: "When does stack overflow happen?",
+    a: "When unbounded recursion pushes frames until the engine runs out of allocated stack memory!",
+    revealStep: 4
+  }
+]
+</script>
+
+<SlLayout
+  topic="The Call Stack & Event Loop Coordination"
+  pair="Topic 2 • Slide 1/2"
+  :step="$clicks"
+  :captions="captions"
+  phase="concept"
+>
+  <div class="slide-grid">
+    <div class="col-left">
+      <CodePanel
+        title="call-stack-trace.js"
+        :lines="codeLines"
+        :active-line="$clicks === 1 ? 14 : ($clicks === 2 ? 10 : ($clicks === 3 ? 6 : ($clicks === 4 ? 2 : 0)))"
+        :highlight-lines="$clicks === 1 ? [14] : ($clicks === 2 ? [9, 10] : ($clicks === 3 ? [5, 6] : ($clicks === 4 ? [1, 2] : [])))"
+        tag="LIFO Stack"
+      />
+    </div>
+    <div class="col-right">
+      <QuestionCards
+        :items="questions"
+        :step="$clicks"
+      />
+    </div>
+  </div>
+</SlLayout>
+
+<style scoped>
+.slide-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  height: 100%;
+  padding: 10px 14px;
+  box-sizing: border-box;
+}
+.col-left, .col-right {
+  height: 100%;
+  overflow: hidden;
+}
+</style>
+
 ---
-layout: default
-clicks: 12
----
 
-<Slide05CallStack :step="$clicks" />
+<!-- ========================================== -->
+<!-- TOPIC 2 • SLIDE 2 OF 2: ENGINE SIMULATOR    -->
+<!-- ========================================== -->
+<script setup lang="ts">
+import { computed } from 'vue'
+import SlLayout from '../components/SlLayout.vue'
+import CodePanel from '../components/CodePanel.vue'
+import EngineVisualizer from '../components/EngineVisualizer.vue'
 
-<!--
-Slide 5: Call Stack in Action: Nested LIFO Execution.
-Walk through nested function invocations:
-- Calling a function pauses the caller frame and pushes a new frame.
-- Frame on top has exclusive thread control.
-- Returning a value pops the frame and passes the result downwards.
--->
+const codeLines = [
+  "1: printSquare(4);",
+  "2:   -> square(4);",
+  "3:     -> multiply(4, 4);",
+  "4:     <- returns 16;",
+  "5:   <- returns 16;",
+  "6: console.log('Result: 16');"
+]
 
----
-layout: default
-clicks: 12
----
+const captions = [
+  "Simulator: Watch the Call Stack push & unwind while the Event Loop monitors execution.",
+  "Step 1: printSquare(4) is called. Stack pushes printSquare.",
+  "Step 2: square(4) is called. Stack pushes square.",
+  "Step 3: multiply(4, 4) is called. Stack pushes multiply.",
+  "Step 4: multiply computes 16 and returns. multiply() pops off!",
+  "Step 5: square() returns 16. square() pops off!",
+  "Step 6: console.log('Result: 16') executes and prints to terminal.",
+  "Step 7: printSquare() finishes and pops off. Call Stack is 100% EMPTY. Event Loop is ready!"
+]
 
-<ThreadVsEventLoop :step="$clicks" title="Why Not Multi-Threading? The DOM Concurrency Hazard" />
+const traceStates = [
+  { stack: ['global()'], loopStatus: 'Call Stack active (global)', logs: [], line: 1 },
+  { stack: ['global()', 'printSquare(4)'], loopStatus: 'Executing printSquare', logs: [], line: 1 },
+  { stack: ['global()', 'printSquare(4)', 'square(4)'], loopStatus: 'Executing square', logs: [], line: 2 },
+  { stack: ['global()', 'printSquare(4)', 'square(4)', 'multiply(4,4)'], loopStatus: 'Executing multiply', logs: [], line: 3 },
+  { stack: ['global()', 'printSquare(4)', 'square(4)'], loopStatus: 'multiply returned 16', logs: [], line: 4 },
+  { stack: ['global()', 'printSquare(4)'], loopStatus: 'square returned 16', logs: [], line: 5 },
+  { stack: ['global()', 'printSquare(4)', 'console.log()'], loopStatus: 'Printing output', logs: ['Result: 16'], line: 6 },
+  { stack: [], loopStatus: 'STACK EMPTY! Event Loop checking queues...', logs: ['Result: 16'], line: 6 }
+]
 
-<!--
-Slide 6: Why Not Multi-Threading?
-Demonstrate the DOM race condition:
-Thread A computes layout for #box while Thread B removes #box from memory.
-Without mutexes, the browser crashes with null pointer dereference.
-With mutexes, the UI freezes with deadlocks.
-JavaScript's single thread eliminates this hazard!
--->
+const current = computed(() => {
+  const idx = Math.min($clicks, traceStates.length - 1)
+  return traceStates[idx]
+})
+</script>
 
----
-layout: default
-clicks: 12
----
+<SlLayout
+  topic="Call Stack Unwinding & The Event Loop Tick"
+  pair="Topic 2 • Slide 2/2"
+  :step="$clicks"
+  :captions="captions"
+  phase="demo"
+>
+  <div class="slide-grid-engine">
+    <div class="col-code-narrow">
+      <CodePanel
+        title="stack-trace.js"
+        :lines="codeLines"
+        :active-line="current.line"
+        tag="LIFO Execution"
+      />
+    </div>
+    <div class="col-engine-wide">
+      <EngineVisualizer
+        :state="{
+          stack: current.stack,
+          webApis: [],
+          microtasks: [],
+          macrotasks: [],
+          logs: current.logs,
+          loopStatus: current.loopStatus,
+          activeComponent: current.stack.length ? 'stack' : 'loop'
+        }"
+      />
+    </div>
+  </div>
+</SlLayout>
 
-<Slide07StackOverflow :step="$clicks" />
-
-<!--
-Slide 7: Call Stack Overflow & Memory Exhaustion.
-Show what happens when recursion lacks a base case:
-Stack frame counter climbs to ~10,420 frames in V8 until the Stack Guard triggers RangeError.
-Demonstrate solutions: Base cases, iteration, trampolines, and async offloading.
--->
-
----
-layout: default
-clicks: 20
----
-
-<Slide08HostEnvironments :step="$clicks" />
-
-<!--
-Slide 8: The Host Superpower: Browser Web APIs vs Node.js libuv.
-Clarify that while JS is single-threaded inside V8, the host environment is massively multi-threaded!
-- Browser: Chromium C++ Network, Timer, Audio, and GPU compositor threads.
-- Node.js: libuv event demultiplexer (epoll/kqueue) + 4-thread Worker Pool (UV_THREADPOOL_SIZE).
--->
+<style scoped>
+.slide-grid-engine {
+  display: grid;
+  grid-template-columns: 0.95fr 1.35fr;
+  gap: 12px;
+  height: 100%;
+  padding: 10px 14px;
+  box-sizing: border-box;
+}
+.col-code-narrow, .col-engine-wide {
+  height: 100%;
+  overflow: hidden;
+}
+</style>

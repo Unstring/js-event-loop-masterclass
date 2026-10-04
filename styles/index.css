@@ -43,14 +43,13 @@
   background-color: #ffffff !important;
   color: #0f172a !important;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  padding: 0.85rem 1.25rem !important;
+  padding: 0 !important;
   height: 100% !important;
   width: 100% !important;
   box-sizing: border-box !important;
   overflow: hidden !important;
   display: flex !important;
   flex-direction: column !important;
-  justify-content: space-between !important;
 }
 
 /* Prevent unwanted browser dark-mode inversions */
